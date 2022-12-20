@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "imgUrl": "/images/banner1.png",
+    "title": "京东超市"
+  },
+  {
+    "id": "2",
+    "imgUrl": "/images/banner2.png",
+    "title": "海屯全球"
+  },
+  {
+    "id": "3",
+    "imgUrl": "/images/banner3.png",
+    "title": "京东服饰"
+  },
+  {
+    "id": "4",
+    "imgUrl": "/images/banner4.png",
+    "title": "京东生鲜"
+  },
+  {
+    "id": "5",
+    "imgUrl": "/images/banner5.png",
+    "title": "京东到家"
+  },
+  {
+    "id": "6",
+    "imgUrl": "/images/banner6.png",
+    "title": "充实缴费"
+  },
+  {
+    "id": "7",
+    "imgUrl": "/images/banner7.png",
+    "title": "9.9元拼"
+  },
+  {
+    "id": "8",
+    "imgUrl": "/images/banner8.png",
+    "title": "领券"
+  },
+  {
+    "id": "9",
+    "imgUrl": "/images/banner9.png",
+    "title": "赚钱"
+  },
+  {
+    "id": "10",
+    "imgUrl": "/images/banner10.png",
+    "title": "全部"
+  }
+]
