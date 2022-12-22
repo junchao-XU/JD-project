@@ -1,37 +1,11 @@
 <template>
-  <div class="home">
+  <div ref="homeSorll" class="home">
     <!-- 顶部搜索区域 -->
-    <div class="nav-bar z-index-max">
-      <!-- 左侧更多按钮 -->
-      <div class="left">
-        <i class="iconfont icon-gengduo"></i>
-      </div>
-      <!-- 中间搜索部分 -->
-      <div class="center">
-        <div class="search">
-          <i class="iconfont icon-sousuo"></i>
-          <span class="search-hint">大前端开发，混合京东商城系统</span>
-        </div>
-      </div>
-      <!-- 右侧消息部分 -->
-      <div class="right">
-        <i class="iconfont icon-xiaoxi"></i>
-      </div>
-    </div>
+    <TopNav :contentHight="contentHight"></TopNav>
     <!-- 内容区域 -->
     <div class="home-content">
       <!-- 论播图 -->
-      <div>
-        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-          <van-swipe-item
-            v-for="swipe in swipeList"
-            :key="swipe.id"
-            style="height: 184px"
-          >
-            <img :src="swipe.icon" alt style="width: 100%" />
-          </van-swipe-item>
-        </van-swipe>
-      </div>
+      <SwipeList @Hight="contentHight = $event"></SwipeList>
       <!-- 活动模块 -->
       <div class="activity z-index-2">
         <van-row class="activity-list">
@@ -57,7 +31,13 @@
           <p class="seconds-wrap-title">京东秒杀</p>
           <div class="count-down">
             <span class="count-down-end-time">16点场</span>
-            <van-count-down :time="time" class="count-down-surplus" />
+            <van-count-down
+              :time="time"
+              class="count-down-surplus"
+              v-if="timeShow"
+              @finish="finish"
+            />
+            <span class="count-down-surplus" v-else>活动已结束</span>
           </div>
         </div>
         <div class="seconds-content">
@@ -72,43 +52,66 @@
           </div>
         </div>
       </div>
+      <!-- 限量活动 -->
+      <div class="activity2 z-index-2">
+        <div class="activity-ping-gou-jie">
+          <img :src="limited" alt="" />
+        </div>
+      </div>
+      <!-- 列表 -->
+      <GoodsList></GoodsList>
     </div>
   </div>
 </template>
 
 <script>
 import {
-  getSwiperDataApi,
   getactivitysDataApi,
   getclassifyDataApi,
   getSecondsDataApi,
+  getlimitedDataApi,
 } from "@/api/home.js";
+
+import GoodsList from "./component/GoodsList";
+import SwipeList from "./component/SwipeList";
+import TopNav from "./component/TopNav";
+
 export default {
   name: "Home",
+  components: { GoodsList, SwipeList, TopNav },
   data() {
     return {
-      swipeList: JSON.parse(localStorage.getItem("DATA_1")) || [], //轮播图数据
-      activityList: JSON.parse(localStorage.getItem("DATA_2")) || [], //活动列表数据
-      classifyList: JSON.parse(localStorage.getItem("DATA_3")) || [], //分类列表数据
+      activityList: [], //活动列表数据
+      classifyList: [], //分类列表数据
       secondsList: [], //秒杀列表数据
-      time: new Date("16:00:00"),
+      time: new Date("2022-12-21 16:00:00") - new Date(), //倒计时时间
+      timeShow: true, //控制倒计时结束显示
+      limited: "", //限量图片
+      contentHight: 0,
+      homeScroll: 1000,
     };
   },
-  async created() {
-    // 请求论播图得数据
-    try {
-      let { data } = await getSwiperDataApi();
-      this.swipeList = data.list;
-      localStorage.setItem("DATA_1", JSON.stringify(this.swipeList));
-    } catch (error) {
-      console.log(error);
-    }
+  beforeRouteLeave(to, from, next) {
+    this.$nextTick(() => {
+      this.scrollTop = this.$refs.homeSorll.scrollTop;
+    });
+    //保存滚动条元素div的scrollTop值
+    next();
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.$nextTick(() => {
+        vm.$refs.homeSorll.scrollTop = vm.scrollTop;
+      });
+      // 为div元素重新设置保存的scrollTop值
+    });
+  },
 
+  async created() {
     // 请求活动列表得数据
     try {
       let { data } = await getactivitysDataApi();
       this.activityList = data.list;
-      localStorage.setItem("DATA_2", JSON.stringify(this.activityList));
     } catch (error) {
       console.log(error);
     }
@@ -117,7 +120,6 @@ export default {
     try {
       let { data } = await getclassifyDataApi();
       this.classifyList = data;
-      localStorage.setItem("DATA_3", JSON.stringify(this.classifyList));
     } catch (error) {
       console.log(error);
     }
@@ -125,84 +127,36 @@ export default {
     //请求获取秒杀列表得数据
     try {
       let { data } = await getSecondsDataApi();
-      console.log(data.data.list);
       this.secondsList = data.data.list;
     } catch (error) {
       console.log(error);
     }
+
+    // 获取限量图片
+    try {
+      let { data } = await getlimitedDataApi();
+      this.limited = data.data.imgUrl;
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  methods: {
+    finish() {
+      // 控制秒杀时间的显示
+      this.timeShow = false;
+    },
   },
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .home {
   overflow: hidden;
   overflow-y: auto;
   height: 100%;
 
-  // 搜索导航栏
-  .nav-bar {
-    position: fixed;
-    background-color: rgba(255, 255, 255, 0);
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    height: 88px;
-    line-height: 88px;
-    padding-top: 44px;
-    .left {
-      display: flex;
-      height: 100%;
-      width: 42px;
-      padding: 0 16px;
-      .iconfont {
-        color: #fff;
-      }
-    }
-    .right {
-      display: flex;
-      height: 100%;
-      width: 42px;
-      padding: 0 16px;
-      .iconfont {
-        color: #fff;
-        font-size: 50px;
-      }
-    }
-    .center {
-      display: flex;
-      height: 100%;
-      flex-grow: 1;
-      .search {
-        width: 100%;
-        margin: 12px;
-        border-radius: 50px;
-        display: flex;
-        align-items: center;
-        background-color: #fff;
-        .iconfont {
-          font-size: 30px;
-          margin-left: 16px;
-          color: #999;
-        }
-        .search-hint {
-          font-size: 12px;
-          color: #999;
-          margin-left: 16px;
-        }
-      }
-    }
-  }
-
   // 内容区域
   .home-content {
-    // 抡播图
-    .my-swipe .van-swipe-item {
-      color: #fff;
-      font-size: 20px;
-      text-align: center;
-    }
-
     // 活动模块
     .activity {
       margin-top: -18px;
@@ -210,9 +164,6 @@ export default {
       .activity-list,
       /deep/.van-col {
         max-height: 200px;
-        img {
-          width: 100%;
-        }
       }
     }
 
@@ -293,6 +244,85 @@ export default {
             color: #999;
             font-size: 28px;
             text-decoration: line-through;
+          }
+        }
+      }
+    }
+
+    // 限量活动
+    .activity2 {
+      position: relative;
+      .activity-ping-gou-jie {
+        img {
+          width: 100%;
+        }
+      }
+    }
+
+    // 列表
+    .goods {
+      position: relative;
+      margin: 16px;
+      column-count: 2;
+      column-gap: 20px;
+      .goods-item {
+        background-color: #fff;
+        width: 100%;
+        margin-bottom: 16px;
+        border-radius: 10px;
+        overflow: hidden;
+        .goods-item-pading {
+          padding: 16px;
+          img {
+            width: 100%;
+            height: auto;
+          }
+          .goods-item-desc {
+            margin-top: -10px;
+            .goods-item-desc-name {
+              font-size: 28px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-break: break-word;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+              display: -webkit-box;
+              line-height: 36px;
+              .goods-item-name-direct {
+                padding: 0 8px;
+                background-color: #d81e06;
+                color: #fff;
+                border-radius: 5px;
+                margin-right: 4px;
+                font-size: 24px;
+              }
+              .goods-item-name-no-have {
+                padding: 0 8px;
+                background-color: #909090;
+                color: #fff;
+                border-radius: 5px;
+                font-size: 24px;
+              }
+            }
+            .goods-item-desc-name-hint {
+              color: #999;
+            }
+            .goods-item-desc-data {
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-top: 8px;
+              .goods-item-desc-data-price {
+                font-size: 32px;
+                color: #d81e06;
+                font-weight: 500;
+              }
+              .goods-item-desc-data-volume {
+                font-size: 28px;
+                color: #999;
+              }
+            }
           }
         }
       }

@@ -8,23 +8,40 @@ const routes = [
   // 路由重定向
   {
     path: "/",
-    redirect: "/home",
+    redirect: "/layout/home",
   },
   {
-    path: "/home",
-    component: () => import("@/views/Home"),
+    path: "/layout",
+    component: () => import("@/views/layout"),
+    children: [
+      {
+        path: "home",
+        name: "home",
+        meta: { keepAlive: true, top: 0 }, //用于路由缓存
+        component: () => import("@/views/Home"),
+      },
+      {
+        path: "shopping",
+        name: "shopping",
+        component: () => import("@/views/Shopping"),
+      },
+      {
+        path: "user",
+        name: "user",
+        component: () => import("@/views/User"),
+      },
+    ],
   },
   {
-    path: "/shopping",
-    component: () => import("@/views/Shopping"),
-  },
-  {
-    path: "/user",
-    component: () => import("@/views/User"),
+    path: "/goodsd",
+    name: "goodsd",
+    meta: { keepAlive: true }, //用于路由缓存
+    component: () => import("@/views/goodsDetails"),
   },
 ];
 
 const router = new VueRouter({
+  mode: "history",
   routes,
 });
 

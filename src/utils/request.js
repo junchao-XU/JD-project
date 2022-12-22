@@ -10,7 +10,6 @@ request.interceptors.request.use((config) => {
   // 都是GET请求,不需要做请求类型判断
   config.params = {
     token: token,
-    time: Date.now(),
   };
   return config;
 });
