@@ -1,7 +1,10 @@
 <template>
   <div class="main">
     <!-- 2级路由挂载点 -->
-    <router-view></router-view>
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
 
     <!-- 底部导航栏 -->
     <div class="bootom z-index-max" v-if="$route.path !== '/goodsd'">

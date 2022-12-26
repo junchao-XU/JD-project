@@ -57,3 +57,11 @@ export const getgoodsDataApi = () => {
     method: "GET",
   });
 };
+
+// 商品详情  url:/goodsDetail   method:get
+export const getgoodsDetailApi = (goodsId) => {
+  return request({
+    url: `/goodsDetail?goodsId=${goodsId}`,
+    method: "GET",
+  });
+};

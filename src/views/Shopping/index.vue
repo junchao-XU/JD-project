@@ -7,22 +7,30 @@
     <div class="shopping-content">
       <div class="shopping-content-list">
         <!-- 单个商品 -->
-        <ShoppingItem></ShoppingItem>
+        <ShoppingItem
+          v-for="(item, index) in Shoppings"
+          :key="index"
+          :goodsObj="item"
+          @setValue="addCount(item, $event)"
+        ></ShoppingItem>
       </div>
       <div class="shopping-content-total">
         <div class="shopping-content-total-check">
-          <van-checkbox v-model="checked" checked-color="#ee0a24"
+          <van-checkbox v-model="checkeds" checked-color="#ee0a24"
             >全选</van-checkbox
           >
           <div class="shopping-content-total-price">
             <p class="shopping-content-total-price-total">
-              合计: <span>￥0.00</span>
+              合计: <span>￥{{ price }}</span>
             </p>
             <p class="shopping-content-total-price-all">
-              总额: <span>￥0.00</span>&nbsp;&nbsp;立减<span>￥0.00</span>
+              总额: <span>￥{{ price }}</span
+              >&nbsp;&nbsp;立减<span>￥0.00</span>
             </p>
           </div>
-          <div class="shopping-content-total-settlement">去结算(0)</div>
+          <div class="shopping-content-total-settlement">
+            去结算({{ DoneNum }})
+          </div>
         </div>
       </div>
     </div>
@@ -31,14 +39,49 @@
 
 <script>
 import ShoppingItem from "./Item";
+import { mapState } from "vuex";
 export default {
   components: { ShoppingItem },
   name: "Shopping",
   data() {
-    return {
-      checked: true,
-      value: 0,
-    };
+    return {};
+  },
+  computed: {
+    ...mapState(["Shoppings"]),
+    // 全选与全不选
+    checkeds: {
+      get() {
+        return (
+          this.Shoppings.every((item) => item.isDirect) &&
+          this.Shoppings.length > 0
+        );
+      },
+      set(val) {
+        this.Shoppings.forEach((item) => {
+          item.isDirect = val;
+        });
+      },
+    },
+    // 结算数量
+    DoneNum() {
+      return this.Shoppings.filter((item) => item.isDirect).reduce((x, y) => {
+        return x + y.count;
+      }, 0);
+    },
+    // 价格
+    price() {
+      return this.Shoppings.filter((item) => item.isDirect)
+        .reduce((pre, cur) => {
+          return (pre += cur.price * Number(cur.count));
+        }, 0)
+        .toFixed(2);
+    },
+  },
+  methods: {
+    addCount(item, val) {
+      item.count = val;
+      localStorage.setItem("SHOPPING", JSON.stringify(this.Shoppings));
+    },
   },
 };
 </script>

@@ -3,18 +3,15 @@
     <div class="shopping-content-list-item-checkbox">
       <van-checkbox v-model="checked" checked-color="#ee0a24" />
     </div>
-    <img
-      src="https://img01.yzcdn.cn/vant/cat.jpeg"
-      alt=""
-      class="shopping-content-list-item-img"
-    />
+    <img :src="goodsObj.img" alt="" class="shopping-content-list-item-img" />
     <div class="shopping-content-list-item-desc">
       <p class="shopping-content-list-item-desc-name">
-        【二手95新】劳力士 日志型系列 奢侈品18K白金男腕表 自动机械男士手表
-        116264 白色表盘
+        {{ goodsObj.name }}
       </p>
       <div class="shopping-content-list-item-desc-data">
-        <p class="shopping-content-list-item-desc-data-price">￥38000</p>
+        <p class="shopping-content-list-item-desc-data-price">
+          ￥{{ goodsObj.price }}
+        </p>
         <div class="number-manager">
           <van-stepper v-model="value" integer />
         </div>
@@ -26,12 +23,37 @@
 <script>
 export default {
   name: "ShoppingItem",
-  data() {
-    return {
-      checked: true,
-      value: 0,
-    };
+  props: {
+    goodsObj: Object,
   },
+  data() {
+    return {};
+  },
+  computed: {
+    checked: {
+      get() {
+        return this.goodsObj.isDirect;
+      },
+      set(val) {
+        this.$store.commit("SETDONE", { isDirect: val, id: this.goodsObj.id });
+      },
+    },
+    value: {
+      get() {
+        return this.goodsObj.count || 1;
+      },
+      set(val) {
+        this.$emit("setValue", val);
+      },
+    },
+  },
+  // watch: {
+  //   value: {
+  //     handler() {
+  //       this.$emit("setValue", this.value);
+  //     },
+  //   },
+  // },
 };
 </script>
 

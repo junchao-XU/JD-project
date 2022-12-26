@@ -17,12 +17,13 @@ const routes = [
       {
         path: "home",
         name: "home",
-        meta: { keepAlive: true, top: 0 }, //用于路由缓存
+        meta: { keepAlive: true }, //用于路由缓存
         component: () => import("@/views/Home"),
       },
       {
         path: "shopping",
         name: "shopping",
+        meta: { keepAlive: true }, //用于路由缓存
         component: () => import("@/views/Shopping"),
       },
       {

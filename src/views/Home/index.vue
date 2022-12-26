@@ -37,6 +37,9 @@
               v-if="timeShow"
               @finish="finish"
             />
+            <span class="count-down-surplus" v-else-if="timerNow"
+              >活动进行中</span
+            >
             <span class="count-down-surplus" v-else>活动已结束</span>
           </div>
         </div>
@@ -76,6 +79,8 @@ import GoodsList from "./component/GoodsList";
 import SwipeList from "./component/SwipeList";
 import TopNav from "./component/TopNav";
 
+import dayjs from "dayjs";
+
 export default {
   name: "Home",
   components: { GoodsList, SwipeList, TopNav },
@@ -84,13 +89,15 @@ export default {
       activityList: [], //活动列表数据
       classifyList: [], //分类列表数据
       secondsList: [], //秒杀列表数据
-      time: new Date("2022-12-21 16:00:00") - new Date(), //倒计时时间
+      time:
+        new Date(`${dayjs(new Date()).format("YYYY-MM-DD")} 16:00:00`) -
+        new Date(), //倒计时时间
       timeShow: true, //控制倒计时结束显示
       limited: "", //限量图片
       contentHight: 0,
-      homeScroll: 1000,
     };
   },
+  // 离开路由
   beforeRouteLeave(to, from, next) {
     this.$nextTick(() => {
       this.scrollTop = this.$refs.homeSorll.scrollTop;
@@ -98,6 +105,7 @@ export default {
     //保存滚动条元素div的scrollTop值
     next();
   },
+  // 进入路由
   beforeRouteEnter(to, from, next) {
     next((vm) => {
       vm.$nextTick(() => {
@@ -139,6 +147,17 @@ export default {
     } catch (error) {
       console.log(error);
     }
+  },
+  computed: {
+    // 活动进行中
+    timerNow() {
+      return (
+        dayjs(new Date()).format("HH") <
+          dayjs(new Date("2022-12-23 17:00:00")).format("HH") &&
+        dayjs(new Date()).format("HH") >=
+          dayjs(new Date("2022-12-23 16:00:00")).format("HH")
+      );
+    },
   },
   methods: {
     finish() {

@@ -6,7 +6,7 @@
         class="goods-item"
         v-for="goods in goodsList"
         :key="goods.id"
-        @click="$router.push({ name: 'goodsd' })"
+        @click="detailsFun(goods)"
       >
         <div class="goods-item-pading">
           <img :src="goods.img" alt="" :style="{ height: higth() + 'px' }" />
@@ -58,6 +58,10 @@ export default {
     // 列表随机高度
     higth() {
       return Math.floor(Math.random() * (230 - 180 + 1)) + 180;
+    },
+    detailsFun(goods) {
+      if (!goods.isHave) return this.$toast.fail("此商品卖空啦");
+      this.$router.push({ name: "goodsd", query: { goodsId: goods.id } });
     },
   },
 };
